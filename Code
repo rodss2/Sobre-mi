@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Experiencia Visual Oscura</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <style id="app-style">
+        :root {
+            --primary: #6d28d9;
+            --primary-hover: #7c3aed;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .header {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background-color: rgba(18, 18, 18, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo-text {
+            letter-spacing: -0.05em;
+            font-weight: 700;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img {
+            transition: all 0.5s ease;
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn-primary:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .hamburger {
+            width: 24px;
+            height: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: white;
+            border-radius: 9px;
+            opacity: 1;
+            left: 0;
+            transform: rotate(0deg);
+            transition: .25s ease-in-out;
+        }
+
+        .hamburger span:nth-child(1) {
+            top: 6px;
+        }
+
+        .hamburger span:nth-child(2),
+        .hamburger span:nth-child(3) {
+            top: 12px;
+        }
+
+        .hamburger span:nth-child(4) {
+            top: 18px;
+        }
+
+        .hamburger.open span:nth-child(1) {
+            top: 12px;
+            width: 0%;
+            left: 50%;
+        }
+
+        .hamburger.open span:nth-child(2) {
+            transform: rotate(45deg);
+        }
+
+        .hamburger.open span:nth-child(3) {
+            transform: rotate(-45deg);
+        }
+
+        .hamburger.open span:nth-child(4) {
+            top: 12px;
+            width: 0%;
+            left: 50%;
+        }
+
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        .social-icon {
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .social-icon:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-hover));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .scroll-down {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom AOS animation */
+        [data-aos="custom-fade"] {
+            opacity: 0;
+            transition-property: opacity, transform;
+        }
+
+        [data-aos="custom-fade"].aos-animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header fixed w-full top-0 z-50 py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="javascript:void(0)" class="logo-text text-2xl text-white">PRO<span
+                    class="text-purple-500">FILE</span></a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="#inicio" class="text-gray-300 hover:text-white transition-colors duration-300">Inicio</a>
+                <a href="#coleccion" class="text-gray-300 hover:text-white transition-colors duration-300">Colección</a>
+                <a href="#experiencia"
+                    class="text-gray-300 hover:text-white transition-colors duration-300">Experiencia</a>
+                <a href="#contacto" class="text-gray-300 hover:text-white transition-colors duration-300">Contacto</a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <div class="hamburger md:hidden" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu fixed top-0 left-0 h-full w-64 bg-gray-900 z-50 shadow-lg py-20 px-6" id="mobileMenu">
+            <div class="flex flex-col space-y-6">
+                <a href="#inicio"
+                    class="text-gray-300 hover:text-white text-lg transition-colors duration-300">Inicio</a>
+                <a href="#coleccion"
+                    class="text-gray-300 hover:text-white text-lg transition-colors duration-300">Colección</a>
+                <a href="#experiencia"
+                    class="text-gray-300 hover:text-white text-lg transition-colors duration-300">Experiencia</a>
+                <a href="#contacto"
+                    class="text-gray-300 hover:text-white text-lg transition-colors duration-300">Contacto</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="text-center max-w-3xl mx-auto" data-aos="fade-up" data-aos-duration="1000">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Said Javier <span
+                        class="text-purple-500">Sobre mi</span></h1>
+                <p class="text-lg md:text-xl text-gray-300 mb-10">Soy una persona Tranquila Respetuosa Amable y otra
+                    cosas si quieres saber sobre mi dale en el boton.
+                </p>
+                <a href="#coleccion" class="btn-primary inline-block">Explorar</a>
+            </div>
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center">
+                <i class="fas fa-chevron-down text-purple-500 scroll-down"></i>
+            </div>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-purple-900/20"></div>
+    </section>
+
+    <!-- Collection Section -->
+    <section id="coleccion" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Que hago en mi vida?</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Hago variedad de cosas como esto</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="100">
+                    <div class="overflow-hidden">
+                        <img src="https://media.discordapp.net/attachments/1381403952817373195/1381403974946652200/OGdBb005cz0.png?ex=68476434&is=684612b4&hm=73be4d09a267385fe0098badbce92bbc270e642e283d582fd1995c5d673c5129&=&format=webp&quality=lossless&width=400&height=266"
+                            alt="Espacio abstracto" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Baloncesto</h3>
+                        <p class="text-gray-400 mb-4">Pratico lo que viene siendo Baloncesto no soy tan bueno pero me
+                            gusta</p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="200">
+                    <div class="overflow-hidden">
+                        <img src="https://media.discordapp.net/attachments/1381403952817373195/1381407466285301921/image.png?ex=68476775&is=684615f5&hm=7b486ecd81f64df344d3df47f94c5ee2d51490f8d999bf7ac4ec1e80b6368859&=&format=webp&quality=lossless&width=420&height=280"
+                            alt="Paisaje abstracto" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Dimensión Abstracta</h3>
+                        <p class="text-gray-400 mb-4">Formas y colores que transportan a un mundo de infinitas
+                            posibilidades creativas.</p>
+                        <a href="javascript:void(0)"
+                            class="text-purple-400 hover:text-purple-300 inline-flex items-center transition-colors">
+                            Descubrir <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="300">
+                    <div class="overflow-hidden">
+                        <img src="https://cdn.pixabay.com/photo/2023/01/08/21/22/ai-generated-7706225_1280.jpg"
+                            alt="Tecnología futurista" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Futuro Tecnológico</h3>
+                        <p class="text-gray-400 mb-4">Una visión vanguardista de cómo la tecnología transforma nuestra
+                            realidad.</p>
+                        <a href="javascript:void(0)"
+                            class="text-purple-400 hover:text-purple-300 inline-flex items-center transition-colors">
+                            Descubrir <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="100">
+                    <div class="overflow-hidden">
+                        <img src="https://cdn.pixabay.com/photo/2023/04/18/15/17/ai-generated-7935566_1280.jpg"
+                            alt="Arte digital" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Expresión Digital</h3>
+                        <p class="text-gray-400 mb-4">Arte generado por algoritmos que desafía los límites de la
+                            creatividad humana.</p>
+                        <a href="javascript:void(0)"
+                            class="text-purple-400 hover:text-purple-300 inline-flex items-center transition-colors">
+                            Descubrir <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="200">
+                    <div class="overflow-hidden">
+                        <img src="https://cdn.pixabay.com/photo/2023/01/29/01/18/ai-generated-7751794_1280.jpg"
+                            alt="Mundo surreal" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Mundos Surreales</h3>
+                        <p class="text-gray-400 mb-4">Paisajes oníricos que invitan a cuestionar la naturaleza de la
+                            realidad.</p>
+                        <a href="javascript:void(0)"
+                            class="text-purple-400 hover:text-purple-300 inline-flex items-center transition-colors">
+                            Descubrir <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="card" data-aos="custom-fade" data-aos-delay="300">
+                    <div class="overflow-hidden">
+                        <img src="https://cdn.pixabay.com/photo/2023/01/23/09/26/ai-generated-7738544_1280.jpg"
+                            alt="Abstracción geométrica" class="w-full h-56 object-cover card-img">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">Geometría Fluida</h3>
+                        <p class="text-gray-400 mb-4">Formas que desafían la gravedad en un baile de luz y movimiento
+                            continuo.</p>
+                        <a href="javascript:void(0)"
+                            class="text-purple-400 hover:text-purple-300 inline-flex items-center transition-colors">
+                            Descubrir <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experiencia" class="py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">La Experiencia Visual</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Descubre cómo nuestro enfoque en el diseño crea experiencias
+                    memorables que estimulan los sentidos.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div data-aos="fade-right">
+                    <div class="bg-gradient-to-br from-purple-900/30 to-black p-1 rounded-xl">
+                        <img src="https://cdn.pixabay.com/photo/2018/03/15/08/54/feedback-3227163_1280.jpg"
+                            alt="Experiencia del usuario" class="rounded-xl">
+                    </div>
+                </div>
+
+                <div data-aos="fade-left">
+                    <div class="space-y-6">
+                        <div class="card p-6 transition-all hover:bg-purple-900/20">
+                            <div class="flex items-start">
+                                <div class="mr-4 bg-purple-900/30 p-3 rounded-lg">
+                                    <i class="fas fa-eye text-purple-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2">Diseño Visual</h3>
+                                    <p class="text-gray-400">Interfaces cuidadosamente diseñadas para crear un impacto
+                                        visual inmediato y duradero.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-6 transition-all hover:bg-purple-900/20">
+                            <div class="flex items-start">
+                                <div class="mr-4 bg-purple-900/30 p-3 rounded-lg">
+                                    <i class="fas fa-hand-pointer text-purple-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2">Interactividad</h3>
+                                    <p class="text-gray-400">Elementos interactivos que responden de forma natural e
+                                        intuitiva a cada acción del usuario.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card p-6 transition-all hover:bg-purple-900/20">
+                            <div class="flex items-start">
+                                <div class="mr-4 bg-purple-900/30 p-3 rounded-lg">
+                                    <i class="fas fa-mobile-alt text-purple-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-2">Adaptabilidad</h3>
+                                    <p class="text-gray-400">Experiencias que se transforman y adaptan a cualquier
+                                        dispositivo sin comprometer la calidad.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contacto" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Conéctate Con Nosotros</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">¿Listo para llevar tu experiencia visual al siguiente nivel?
+                    Estamos aquí para hacer realidad tu visión.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <div class="card p-8" data-aos="fade-right">
+                    <h3 class="text-2xl font-semibold mb-6">Envíanos un Mensaje</h3>
+                    <form>
+                        <div class="mb-4">
+                            <label for="name" class="block text-sm font-medium text-gray-400 mb-1">Nombre</label>
+                            <input type="text" id="name"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="block text-sm font-medium text-gray-400 mb-1">Correo
+                                Electrónico</label>
+                            <input type="email" id="email"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="block text-sm font-medium text-gray-400 mb-1">Mensaje</label>
+                            <textarea id="message" rows="4"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full">Enviar Mensaje</button>
+                    </form>
+                </div>
+
+                <div class="flex flex-col justify-center" data-aos="fade-left">
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold mb-6">Información de Contacto</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="mr-4 text-purple-400">
+                                    <i class="fas fa-map-marker-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-medium">Ubicación</h4>
+                                    <p class="text-gray-400">Calle Imaginaria 123, Ciudad Creativa</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="mr-4 text-purple-400">
+                                    <i class="fas fa-envelope text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-medium">Email</h4>
+                                    <p class="text-gray-400">contacto@experienciavisual.com</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="mr-4 text-purple-400">
+                                    <i class="fas fa-phone-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-medium">Teléfono</h4>
+                                    <p class="text-gray-400">+123 456 7890</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Síguenos</h3>
+                        <div class="flex space-x-4">
+                            <a href="javascript:void(0)"
+                                class="social-icon bg-gray-800 hover:bg-purple-900 w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                                <i class="fab fa-twitter text-white"></i>
+                            </a>
+                            <a href="javascript:void(0)"
+                                class="social-icon bg-gray-800 hover:bg-purple-900 w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                                <i class="fab fa-instagram text-white"></i>
+                            </a>
+                            <a href="javascript:void(0)"
+                                class="social-icon bg-gray-800 hover:bg-purple-900 w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                                <i class="fab fa-dribbble text-white"></i>
+                            </a>
+                            <a href="javascript:void(0)"
+                                class="social-icon bg-gray-800 hover:bg-purple-900 w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                                <i class="fab fa-behance text-white"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-12 bg-black">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <a href="javascript:void(0)" class="logo-text text-2xl text-white block mb-4">VISU<span
+                            class="text-purple-500">AL</span></a>
+                    <p class="text-gray-400">Creando experiencias digitales inmersivas y memorables desde 2025.</p>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Enlaces Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#inicio" class="text-gray-400 hover:text-purple-400 transition-colors">Inicio</a>
+                        </li>
+                        <li><a href="#coleccion"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Colección</a></li>
+                        <li><a href="#experiencia"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Experiencia</a></li>
+                        <li><a href="#contacto"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Contacto</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Recursos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Blog</a></li>
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Tutoriales</a></li>
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Documentación</a></li>
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Preguntas Frecuentes</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Términos de Servicio</a>
+                        </li>
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Política de Privacidad</a>
+                        </li>
+                        <li><a href="javascript:void(0)"
+                                class="text-gray-400 hover:text-purple-400 transition-colors">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm">&copy; 2025 Experiencia Visual. Todos los derechos reservados.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="javascript:void(0)" class="social-icon text-gray-400 hover:text-purple-400">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="social-icon text-gray-400 hover:text-purple-400">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="social-icon text-gray-400 hover:text-purple-400">
+                        <i class="fab fa-dribbble"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="social-icon text-gray-400 hover:text-purple-400">
+                        <i class="fab fa-behance"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script id="app-script">
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Loader
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                document.querySelector('.loader').classList.add('hidden');
+            }, 1000);
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', function () {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        menuToggle.addEventListener('click', function () {
+            menuToggle.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+
+        // Close mobile menu when clicking a link
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                menuToggle.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Form submission (for prototype)
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                alert('Este es un prototipo. En la versión completa, este formulario enviará los datos al servidor.');
+                form.reset();
+            });
+        }
+
+        // Add hover effect for cards on touch devices
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('touchstart', function () {
+                this.classList.add('hover');
+            }, { passive: true });
+
+            card.addEventListener('touchend', function () {
+                this.classList.remove('hover');
+            }, { passive: true });
+        });
+    </script>
+</body>
+
+</html>
